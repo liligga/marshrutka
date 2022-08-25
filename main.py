@@ -5,14 +5,70 @@ from models import (
     Driver_Pydantic,
     Route_Pydantic,
     Driver,
-    Route
+    Route,
+    Admin
 )
 # from schemas import Driver_Pydantic
 from tortoise.contrib.fastapi import HTTPNotFoundError, register_tortoise
+from dotenv import load_dotenv
+import aioredis
+import pathlib
+import os
+from fastapi_admin.app import app as admin_app
+from starlette.status import (
+    HTTP_401_UNAUTHORIZED,
+    HTTP_403_FORBIDDEN,
+    HTTP_404_NOT_FOUND,
+    HTTP_500_INTERNAL_SERVER_ERROR,
+)
+from fastapi_admin.exceptions import (
+    forbidden_error_exception,
+    not_found_error_exception,
+    server_error_exception,
+    unauthorized_error_exception,
+)
+from fastapi_admin.providers.login import UsernamePasswordProvider
+from inputs import InputWithMap
+from fastapi_admin.resources import Link, Field, Model as ModelResource
+from fastapi_admin.widgets import displays
+from fastapi import Depends, HTTPException
+from fastapi_admin.depends import get_resources
+from starlette.requests import Request
+from fastapi_admin.template import templates
+from starlette.staticfiles import StaticFiles
+
+
+BASE_DIR = pathlib.Path(__file__).parent.resolve()
+login_provider = UsernamePasswordProvider(
+    admin_model=Admin
+)
+load_dotenv()
+
+
 
 app = FastAPI()
 
+@app.on_event("startup")
+async def startup():
+    admin_app.add_exception_handler(HTTP_500_INTERNAL_SERVER_ERROR, server_error_exception)
+    admin_app.add_exception_handler(HTTP_404_NOT_FOUND, not_found_error_exception)
+    admin_app.add_exception_handler(HTTP_403_FORBIDDEN, forbidden_error_exception)
+    admin_app.add_exception_handler(HTTP_401_UNAUTHORIZED, unauthorized_error_exception)
+    redis = await aioredis.from_url(os.getenv('REDIS_URL'), max_connections=10)
+    await admin_app.configure(
+        logo_url="https://preview.tabler.io/static/logo-white.svg",
+        template_folders=[BASE_DIR/"templates"],
+        providers=[login_provider],
+        redis=redis,
+        default_locale='ru'
+    )
 
+app.mount(
+    "/static",
+    StaticFiles(directory=BASE_DIR/"static"),
+    name="static",
+)
+app.mount("/admin", admin_app)
 
 @app.get("/")
 async def drivers_list():
@@ -52,8 +108,49 @@ async def driver_details(driver_id: int):
 
 register_tortoise(
     app,
-    db_url="sqlite://db.sqlite3",
+    db_url=os.getenv('DATABASE_URL'),
     modules={"models": ["models"]},
     generate_schemas=True,
     add_exception_handlers=True,
 )
+
+
+@admin_app.register
+class Dashboard(Link):
+    label = "Dashboard"
+    icon = "fas fa-home"
+    url = "/admin"
+
+
+@admin_app.register
+class Drivers(ModelResource):
+    label = "Маршруты"
+    model = Route
+    page_pre_title = "Список маршрутов"
+    page_title = "Маршруты"
+    fields = [
+        "number",
+        Field(
+            name="path",
+            label="путь",
+            display=displays.InputOnly(),
+            input_=InputWithMap()
+        )
+    ]
+
+
+@admin_app.get("/")
+async def home(
+    request: Request,
+    resources=Depends(get_resources),
+):
+    return templates.TemplateResponse(
+        "dashboard.html",
+        context={
+            "request": request,
+            "resources": resources,
+            "resource_label": "Dashboard",
+            "page_pre_title": "overview",
+            "page_title": "Dashboard",
+        },
+    )

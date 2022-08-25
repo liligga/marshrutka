@@ -5,6 +5,9 @@ name = "pypi"
 
 [packages]
 tortoise-orm = "*"
+fastapi-admin = "*"
+python-dotenv = "*"
+aioredis = "*"
 
 [dev-packages]
 
