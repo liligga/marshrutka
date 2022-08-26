@@ -1,4 +1,4 @@
-from typing import Type, Tuple
+from typing import Tuple, Type
 
 from tortoise import ConfigurationError
 from tortoise.fields import Field

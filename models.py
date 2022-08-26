@@ -1,9 +1,11 @@
+import datetime
+
+from fastapi_admin.models import AbstractAdmin
 from tortoise import Tortoise, fields
 from tortoise.contrib.pydantic import pydantic_model_creator
 from tortoise.models import Model
-from fastapi_admin.models import AbstractAdmin
+
 from fields import PathField
-import datetime
 
 
 class Route(Model):

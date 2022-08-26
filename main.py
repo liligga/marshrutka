@@ -1,42 +1,31 @@
+import os
+import pathlib
 from typing import Union
-from fastapi import FastAPI
-# from database import drivers
-from models import (
-    Driver_Pydantic,
-    Route_Pydantic,
-    Driver,
-    Route,
-    Admin
-)
+
+import aioredis
+from dotenv import load_dotenv
+from fastapi import Depends, FastAPI, HTTPException
+from fastapi_admin.app import app as admin_app
+from fastapi_admin.depends import get_resources
+from fastapi_admin.exceptions import (forbidden_error_exception,
+                                      not_found_error_exception,
+                                      server_error_exception,
+                                      unauthorized_error_exception)
+from fastapi_admin.providers.login import UsernamePasswordProvider
+from fastapi_admin.resources import Field, Link
+from fastapi_admin.resources import Model as ModelResource
+from fastapi_admin.template import templates
+from fastapi_admin.widgets import displays
+from starlette.requests import Request
+from starlette.staticfiles import StaticFiles
+from starlette.status import (HTTP_401_UNAUTHORIZED, HTTP_403_FORBIDDEN,
+                              HTTP_404_NOT_FOUND,
+                              HTTP_500_INTERNAL_SERVER_ERROR)
 # from schemas import Driver_Pydantic
 from tortoise.contrib.fastapi import HTTPNotFoundError, register_tortoise
-from dotenv import load_dotenv
-import aioredis
-import pathlib
-import os
-from fastapi_admin.app import app as admin_app
-from starlette.status import (
-    HTTP_401_UNAUTHORIZED,
-    HTTP_403_FORBIDDEN,
-    HTTP_404_NOT_FOUND,
-    HTTP_500_INTERNAL_SERVER_ERROR,
-)
-from fastapi_admin.exceptions import (
-    forbidden_error_exception,
-    not_found_error_exception,
-    server_error_exception,
-    unauthorized_error_exception,
-)
-from fastapi_admin.providers.login import UsernamePasswordProvider
-from inputs import InputWithMap
-from fastapi_admin.resources import Link, Field, Model as ModelResource
-from fastapi_admin.widgets import displays
-from fastapi import Depends, HTTPException
-from fastapi_admin.depends import get_resources
-from starlette.requests import Request
-from fastapi_admin.template import templates
-from starlette.staticfiles import StaticFiles
 
+from inputs import InputWithMap
+from models import Admin, Driver, Driver_Pydantic, Route, Route_Pydantic
 
 BASE_DIR = pathlib.Path(__file__).parent.resolve()
 login_provider = UsernamePasswordProvider(
@@ -63,12 +52,15 @@ async def startup():
         default_locale='ru'
     )
 
+
+app.mount("/admin", admin_app)
 app.mount(
     "/static",
     StaticFiles(directory=BASE_DIR/"static"),
     name="static",
 )
-app.mount("/admin", admin_app)
+
+print(templates.env.globals)
 
 @app.get("/")
 async def drivers_list():
