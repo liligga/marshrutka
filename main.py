@@ -4,15 +4,8 @@ import pathlib
 import aioredis
 from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException
-from fastapi_admin.exceptions import (forbidden_error_exception,
-                                      not_found_error_exception,
-                                      server_error_exception,
-                                      unauthorized_error_exception)
 from fastapi_admin.providers.login import UsernamePasswordProvider
 from starlette.staticfiles import StaticFiles
-from starlette.status import (HTTP_401_UNAUTHORIZED, HTTP_403_FORBIDDEN,
-                              HTTP_404_NOT_FOUND,
-                              HTTP_500_INTERNAL_SERVER_ERROR)
 # from schemas import Driver_Pydantic
 from tortoise.contrib.fastapi import HTTPNotFoundError, register_tortoise
 
@@ -28,11 +21,6 @@ app = FastAPI()
 ########################################
 @app.on_event("startup")
 async def startup():
-    admin_app.add_exception_handler(HTTP_500_INTERNAL_SERVER_ERROR, server_error_exception)
-    admin_app.add_exception_handler(HTTP_404_NOT_FOUND, not_found_error_exception)
-    admin_app.add_exception_handler(HTTP_403_FORBIDDEN, forbidden_error_exception)
-    admin_app.add_exception_handler(HTTP_401_UNAUTHORIZED, unauthorized_error_exception)
-
     redis = await aioredis.from_url(os.getenv('REDIS_URL'), max_connections=10)
     await admin_app.configure(
         admin_path='/admin',
