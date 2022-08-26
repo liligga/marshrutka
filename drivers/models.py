@@ -5,7 +5,7 @@ from tortoise import Tortoise, fields
 from tortoise.contrib.pydantic import pydantic_model_creator
 from tortoise.models import Model
 
-from fields import PathField
+from .fields import PathField
 
 
 class Route(Model):
