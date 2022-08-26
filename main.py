@@ -21,9 +21,6 @@ from drivers import Admin, apishka
 
 ##### SOME CONSTANTS AND ENV VARS #####
 BASE_DIR = pathlib.Path(__file__).parent.resolve()
-login_provider = UsernamePasswordProvider(
-    admin_model=Admin
-)
 load_dotenv()
 ########################################
 ############## MAIN APP ################
@@ -38,9 +35,13 @@ async def startup():
 
     redis = await aioredis.from_url(os.getenv('REDIS_URL'), max_connections=10)
     await admin_app.configure(
-        logo_url="https://preview.tabler.io/static/logo-white.svg",
+        admin_path='/admin',
         template_folders=[BASE_DIR/"templates"],
-        providers=[login_provider],
+        providers=[
+            UsernamePasswordProvider(
+                admin_model=Admin,
+            )
+        ],
         redis=redis,
         default_locale='ru'
     )
