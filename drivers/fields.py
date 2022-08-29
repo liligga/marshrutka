@@ -1,8 +1,8 @@
+import re
 from typing import Tuple, Type
 
 from tortoise import ConfigurationError
 from tortoise.fields import Field
-import re
 
 
 class PathField(Field):
