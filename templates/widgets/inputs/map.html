@@ -1,118 +1,138 @@
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.8.0/dist/leaflet.css"
 integrity="sha512-hoalWLoI8r4UszCkZ5kL8vayOGVae1oxXe/2A4AO6J9+580uKHDO3JdHb7NzwwzK5xr/Fs0W40kiNHxM9vyTtQ=="
 crossorigin=""/>
- <style type="text/css" media="all">
-       #map { 
-         height: 600px; 
-         width: 600px
-       }
- </style>
-</head>
-<body>
-   <div id="map">
-    <input type="hidden" name="">
+<style type="text/css" media="all">
+    #map { 
+        height: 600px; 
+        width: 600px
+    }
+</style>
+
+<div id="map">
+    <input type="hidden" name="path" id="path-field" value="">
     map
-   </div>
-   <script src="https://unpkg.com/leaflet@1.8.0/dist/leaflet.js"
+</div>
+<script src="https://unpkg.com/leaflet@1.8.0/dist/leaflet.js"
 integrity="sha512-BB3hKbKWOc9Ez/TAwyWxNXeoV9c1v6FIeYiBieIWkpLjauysF18NzgR1MBNBXf8/KABdlkX68nAhlwcDFLGPCQ=="
 crossorigin=""></script>
-   <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet-editable/1.2.0/Leaflet.Editable.min.js"></script>
-   <script>
-       let mapOptions = {
-         center: [42.8133, 73.8511],
-         zoom: 13,
-         editable: true
-       }
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet-editable/1.2.0/Leaflet.Editable.min.js"></script>
+<script>
+    let mapOptions = {
+        center: [42.8133, 73.8511],
+        zoom: 13,
+        editable: true
+    }
 
-       let map = new L.map('map', mapOptions);
-       let layer = new L.TileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png');
-       map.addLayer(layer)
+    let map = new L.map('map', mapOptions);
+    let layer = new L.TileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png');
+    map.addLayer(layer)
 
-       L.NewLineControl = L.Control.extend({
+    L.NewLineControl = L.Control.extend({
 
-         options: {
-             position: 'topleft'
-         },
+        options: {
+            position: 'topleft'
+        },
 
-         onAdd: function (map) {
-             var container = L.DomUtil.create('div', 'leaflet-control leaflet-bar'),
-             link = L.DomUtil.create('a', '', container);
+        onAdd: function (map) {
+            var container = L.DomUtil.create('div', 'leaflet-control leaflet-bar'),
+            link = L.DomUtil.create('a', '', container);
 
-             link.href = '#';
-             link.title = 'Создать новый маршрут';
-             link.innerHTML = '/\\/';
-             L.DomEvent.on(link, 'click', L.DomEvent.stop)
-             .on(link, 'click', function () {
-                 map.editTools.startPolyline();
-             });
+            link.href = '#';
+            link.title = 'Создать новый маршрут';
+            link.innerHTML = '/\\/';
+            L.DomEvent.on(link, 'click', L.DomEvent.stop)
+            .on(link, 'click', function () {
+                map.editTools.startPolyline();
+            });
 
-             return container;
-         }
-       });
-       map.addControl(new L.NewLineControl());
+            return container;
+        }
+    });
+    map.addControl(new L.NewLineControl());
 
-       L.SavePathControl = L.Control.extend({
+    L.SavePathControl = L.Control.extend({
 
-         options: {
-             position: 'topleft'
-         },
+        options: {
+            position: 'topleft'
+        },
 
-         onAdd: function (map) {
-             var container = L.DomUtil.create('div', 'leaflet-control leaflet-bar'),
-             link = L.DomUtil.create('a', '', container);
+        onAdd: function (map) {
+            var container = L.DomUtil.create('div', 'leaflet-control leaflet-bar'),
+            link = L.DomUtil.create('a', '', container);
 
-             link.href = '#';
-             link.title = 'Сохранить карту';
-             link.innerHTML = '&#10004;';
-             L.DomEvent.on(link, 'click', L.DomEvent.stop)
-             .on(link, 'click', function () {
-                 map.editTools.stopDrawing();
-                 console.log("save coordinates to hidden field");
-             });
+            link.href = '#';
+            link.title = 'Сохранить карту';
+            link.innerHTML = '&#10004;';
+            L.DomEvent.on(link, 'click', L.DomEvent.stop)
+            .on(link, 'click', function () {
+                map.editTools.stopDrawing();
+                console.log("save coordinates to hidden field");
+            });
 
-             return container;
-         }
-       });
-       map.addControl(new L.SavePathControl());
+            return container;
+        }
+    });
+    map.addControl(new L.SavePathControl());
 
-       L.ContinuePathControl = L.Control.extend({
-         options: {
-             position: 'topleft'
-         },
+    L.ContinuePathControl = L.Control.extend({
+        options: {
+            position: 'topleft'
+        },
 
-         onAdd: function (map) {
-             var container = L.DomUtil.create('div', 'leaflet-control leaflet-bar'),
-             link = L.DomUtil.create('a', '', container);
+        onAdd: function (map) {
+            var container = L.DomUtil.create('div', 'leaflet-control leaflet-bar'),
+            link = L.DomUtil.create('a', '', container);
 
-             link.href = '#';
-             link.title = 'Продолжить';
-             link.innerHTML = '&#10004;';
-             L.DomEvent.on(link, 'click', L.DomEvent.stop)
-             .on(link, 'click', function () {
-                  
-                 console.log("continue coordinates to hidden field");
-             });
+            link.href = '#';
+            link.title = 'Продолжить';
+            link.innerHTML = '&#10004;';
+            L.DomEvent.on(link, 'click', L.DomEvent.stop)
+            .on(link, 'click', function () {
+                
+                console.log("continue coordinates to hidden field");
+            });
 
-             return container;
-         }
-       });
-       map.addControl(new L.ContinuePathControl());
+            return container;
+        }
+    });
+    map.addControl(new L.ContinuePathControl());
 
 
-       let Z = 90, latlng, redoBuffer = [],
-       onKeyDown = function (e) {
-           if (e.keyCode == Z) {
-               if (!this.editTools._drawingEditor) return;
-               if (e.shiftKey) {
-                   if (redoBuffer.length) this.editTools._drawingEditor.push(redoBuffer.pop());
-               } else {
-                   latlng = this.editTools._drawingEditor.pop();
-                   if (latlng) redoBuffer.push(latlng);
-               }
-           }
-       };
-       L.DomEvent.addListener(document, 'keydown', onKeyDown, map);
-       map.on('editable:drawing:end', function () {
-           redoBuffer = [];
-       });
-   </script>
+    let Z = 90, latlng, redoBuffer = [],
+    onKeyDown = function (e) {
+        if (e.keyCode == Z) {
+            if (!this.editTools._drawingEditor) return;
+            if (e.shiftKey) {
+                if (redoBuffer.length) this.editTools._drawingEditor.push(redoBuffer.pop());
+            } else {
+                latlng = this.editTools._drawingEditor.pop();
+                if (latlng) redoBuffer.push(latlng);
+            }
+        }
+    };
+    L.DomEvent.addListener(document, 'keydown', onKeyDown, map);
+    map.on('editable:drawing:end', function () {
+        redoBuffer = [];
+    });
+    map.on('editable:drawing:commit', (e) => {
+        const coords = e.vertex.latlngs;
+        let val = '('
+        for(c of coords){
+            val += '(' + c.lat + ', ' + c.lng + '),';
+        }
+        val = val.slice(0, -1);
+        val += ')'
+        document.getElementById('path-field').value = val;
+    })
+    map.on('editable:vertex:dragend', (e) => {
+        const coords = e.vertex.latlngs;
+        let val = '('
+        for(c of coords){
+            val += '(' + c.lat + ', ' + c.lng + '),';
+        }
+        val = val.slice(0, -1);
+        val += ')'
+        document.getElementById('path-field').value = val;
+    })
+
+</script>

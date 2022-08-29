@@ -28,7 +28,7 @@ class Drivers(ModelResource):
         Field(
             name="path",
             label="путь",
-            display=displays.InputOnly(),
+            # display=displays.InputOnly(),
             input_=InputWithMap()
         )
     ]

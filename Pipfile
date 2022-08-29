@@ -8,6 +8,8 @@ tortoise-orm = "*"
 fastapi-admin = "*"
 python-dotenv = "*"
 aioredis = "*"
+pytest = "*"
+requests = "*"
 
 [dev-packages]
 
