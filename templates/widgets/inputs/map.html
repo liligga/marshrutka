@@ -9,8 +9,7 @@ crossorigin=""/>
 </style>
 
 <div id="map">
-    <input type="hidden" name="path" id="path-field" value="">
-    map
+    <input type="hidden" name="path" id="path-field" value="{{value}}">
 </div>
 <script src="https://unpkg.com/leaflet@1.8.0/dist/leaflet.js"
 integrity="sha512-BB3hKbKWOc9Ez/TAwyWxNXeoV9c1v6FIeYiBieIWkpLjauysF18NzgR1MBNBXf8/KABdlkX68nAhlwcDFLGPCQ=="
@@ -27,6 +26,22 @@ crossorigin=""></script>
     let layer = new L.TileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png');
     map.addLayer(layer)
 
+
+    if(document.getElementById('path-field') && document.getElementById('path-field').value != ''){
+        const latlngs = document.getElementById('path-field').value;
+        let result = Array();
+        const pairs = latlngs.replace('((', '').replace('))', '').split('), (')
+        for(let pair of pairs){
+            result.push(
+                pair.split(', ').map(v => parseFloat(v))
+            )
+        }
+        const polyline = L.polyline(result, {color: 'red'}).addTo(map);
+
+        // zoom the map to the polyline
+        map.fitBounds(polyline.getBounds());
+        polyline.enableEdit();
+    }
     L.NewLineControl = L.Control.extend({
 
         options: {
